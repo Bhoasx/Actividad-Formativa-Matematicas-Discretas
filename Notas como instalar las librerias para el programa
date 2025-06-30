@@ -1,0 +1,9 @@
+#Deben entrar al cmd y poner estos codigos para descargar pip networkx
+pip install networkx                                                      #si no funciona usen este 
+pip3 install networkx
+python -m pip install networkx
+#Para instalar el pip matplotlib es lo mismo
+pip show matplotlib
+pip install matplotlib
+pip3 install matplotlib
+python -m pip install matplotlib
