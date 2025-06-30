@@ -1,0 +1,108 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def calcular_tiempo(distancia, dificultad, velocidad):
+    """Calcula el tiempo de viaje en horas basado en la distancia y la velocidad."""
+    return distancia / velocidad[dificultad]
+
+def crear_grafo(distancia, dificultad, velocidad):
+    """Crea un grafo ponderado a partir de los datos de distancia y dificultad."""
+    G = nx.Graph()
+    for (ciudad1, ciudad2), dist in distancia.items():
+        if (ciudad1, ciudad2) not in dificultad:
+            raise ValueError(f"Falta definir dificultad para la conexión {ciudad1} - {ciudad2}")
+        tiempo = calcular_tiempo(dist, dificultad[(ciudad1, ciudad2)], velocidad)
+        G.add_edge(ciudad1, ciudad2, weight=tiempo)
+    return G
+
+def visualizar_grafo(G, titulo="Grafo"):
+    """Visualiza el grafo con sus nodos, aristas y pesos."""
+    pos = nx.spring_layout(G)  # Calcula posiciones de los nodos
+    plt.figure(figsize=(12, 10))
+    nx.draw(
+        G, pos, with_labels=True, node_color="lightblue",
+        node_size=3000, font_size=10, font_weight="bold"
+    )
+    labels = nx.get_edge_attributes(G, 'weight')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels={k: f"{v:.2f}" for k, v in labels.items()})
+    plt.title(titulo, fontsize=16)
+    plt.show()
+
+def main():
+    # Datos de entrada
+    distancia = {
+        ("Tulcán", "Ibarra"): 126.3,
+        ("Ibarra", "Quito"): 113.3,
+        ("Quito", "Latacunga"): 108.1,
+        ("Latacunga", "Ambato"): 42.5,
+        ("Ambato", "Guaranda"): 99.9,
+        ("Guaranda", "Riobamba"): 59.9,
+        ("Riobamba", "Ambato"): 62.2,
+        ("Riobamba", "Azogues"): 242.1,
+        ("Azogues", "Cuenca"): 31.6,
+        ("Ibarra", "Esmeraldas"): 296,
+        ("Quito", "Esmeraldas"): 255,
+        ("Esmeraldas", "Manta"): 357.7,
+        ("Quito", "S. Domingo"): 152.9,
+        ("S. Domingo", "Manta"): 244.3,
+        ("Guaranda", "Guayaquil"): 172.8,
+        ("Riobamba", "Guayaquil"): 285,
+        ("Guayaquil", "Cuenca"): 196,
+        ("Manta", "Salinas"): 324.5,
+        ("Guayaquil", "Salinas"): 129.4,
+        ("Cuenca", "Machala"): 230.9,
+        ("Guayaquil", "Machala"): 181.8
+    }
+
+    dificultad = {
+        ("Tulcán", "Ibarra"): 2,
+        ("Ibarra", "Quito"): 3,
+        ("Quito", "Latacunga"): 3,
+        ("Latacunga", "Ambato"): 3,
+        ("Ambato", "Guaranda"): 2,
+        ("Guaranda", "Riobamba"): 2,
+        ("Riobamba", "Ambato"): 3,
+        ("Riobamba", "Azogues"): 2,
+        ("Azogues", "Cuenca"): 3,
+        ("Ibarra", "Esmeraldas"): 1,
+        ("Quito", "Esmeraldas"): 2,
+        ("Esmeraldas", "Manta"): 2,
+        ("Quito", "S. Domingo"): 1,
+        ("S. Domingo", "Manta"): 2,
+        ("Guaranda", "Guayaquil"): 1,
+        ("Riobamba", "Guayaquil"): 1,
+        ("Guayaquil", "Cuenca"): 1,
+        ("Manta", "Salinas"): 3,
+        ("Guayaquil", "Salinas"): 1,
+        ("Cuenca", "Machala"): 1,
+        ("Guayaquil", "Machala"): 3
+    }
+
+    velocidad = {1: 30, 2: 60, 3: 80}  # Velocidad según dificultad (km/h)
+
+    # Crear y visualizar el grafo completo
+    G = crear_grafo(distancia, dificultad, velocidad)
+    print("Visualizando grafo completo...")
+    visualizar_grafo(G, "Grafo Completo")
+
+    # Verificar conectividad
+    if not nx.is_connected(G):
+        print("El grafo no es conexo. Componentes separadas:")
+        for comp in nx.connected_components(G):
+            print(comp)
+        return
+
+    # Calcular y visualizar el árbol de expansión mínima
+    mst = nx.minimum_spanning_tree(G)
+    print("Visualizando árbol de expansión mínima...")
+    visualizar_grafo(mst, "Árbol de Expansión Mínima")
+
+    # Calcular tiempo total mínimo
+    tiempo_total = sum(data['weight'] for _, _, data in mst.edges(data=True))
+    print(f"\nTiempo total mínimo del árbol de expansión mínima: {tiempo_total:.2f} horas")
+
+if __name__ == "__main__":
+    main()
+
+#para que corra el codigo deben descargar las librerias de pip, networkx y matplotlib
+#desde el simbolo del sistema, busquen en internet
