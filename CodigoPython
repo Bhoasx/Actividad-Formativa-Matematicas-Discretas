@@ -1,0 +1,77 @@
+import networkx as nx
+
+# Datos de ciudades
+ciudades = [
+    "Tulcán", "Ibarra", "Quito", "Latacunga", "Ambato", "Guaranda", "Riobamba",
+    "Azogues", "Cuenca", "Esmeraldas", "Portoviejo", "Manta",
+    "S. Domingo", "Guayaquil", "Salinas", "Machala"
+]
+
+# Matrices: distancia (km) y dificultad (1-3)
+distancia = {
+    ("Tulcán", "Ibarra"): 126.3,
+    ("Ibarra", "Quito"): 113.3,
+    ("Quito", "Latacunga"): 108.1,
+    ("Latacunga", "Ambato"): 42.5,
+    ("Ambato", "Guaranda"): 99.9,
+    ("Guaranda", "Riobamba"): 59.9,
+    ("Riobamba", "Ambato"): 62.2,
+    ("Riobamba", "Azogues"): 242.1,
+    ("Azogues", "Cuenca"): 31.6,
+    ("Ibarra", "Esmeraldas"): 296,
+    ("Quito", "Esmeraldas"): 255,
+    ("Esmeraldas", "Manta"): 357.7,
+    ("Quito", "S. Domingo"): 152.9,
+    ("S. Domingo", "Manta"): 244.3,
+    ("Guaranda", "Guayaquil"): 172.8,
+    ("Riobamba", "Guayaquil"): 285,
+    ("Guayaquil", "Cuenca"): 196,
+    ("Manta", "Salinas"): 324.5,
+    ("Guayaquil", "Salinas"): 129.4,
+    ("Cuenca", "Machala"): 230.9,
+    ("Guayaquil", "Machala"): 181.8
+}
+
+dificultad = {
+    ("Tulcán", "Ibarra"): 2,
+    ("Ibarra", "Quito"): 3,
+    ("Quito", "Latacunga"): 3,
+    ("Latacunga", "Ambato"): 3,
+    ("Ambato", "Guaranda"): 2,
+    ("Guaranda", "Riobamba"): 2,
+    ("Riobamba", "Ambato"): 3,
+    ("Riobamba", "Azogues"): 2,
+    ("Azogues", "Cuenca"): 3,
+    ("Ibarra", "Esmeraldas"): 1,
+    ("Quito", "Esmeraldas"): 2,
+    ("Esmeraldas", "Manta"): 2,
+    ("Quito", "S. Domingo"): 1,
+    ("S. Domingo", "Manta"): 2,
+    ("Guaranda", "Guayaquil"): 1,
+    ("Riobamba", "Guayaquil"): 1,
+    ("Guayaquil", "Cuenca"): 1,
+    ("Manta", "Salinas"): 3,
+    ("Guayaquil", "Salinas"): 1,
+    ("Cuenca", "Machala"): 1,
+    ("Guayaquil", "Machala"): 3
+}
+
+# Velocidades según dificultad
+velocidad = {1: 3, 2: 6, 3: 8}
+
+# Calcular tiempo = (D + 25) / (2v)
+def calcular_tiempo(dist, dif):
+    v = velocidad[dif]
+    return (dist + 25) / (2 * v)
+
+# Crear grafo
+G = nx.Graph()
+for (ciudad1, ciudad2), dist in distancia.items():
+    dif = dificultad[(ciudad1, ciudad2)]
+    tiempo = calcular_tiempo(dist, dif)
+    G.add_edge(ciudad1, ciudad2, weight=tiempo)
+
+# Calcular árbol de expansión mínima
+mst = nx.minimum_spanning_tree(G)
+tiempo_total = sum(d['weight'] for _, _, d in mst.edges(data=True))
+print(f"Tiempo total mínimo: {tiempo_total:.2f} horas")
